@@ -5,6 +5,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class Calculator {
+
+    private double total1 = 0.0;
+    private double total2 = 0.0;
+    private char math_operator;
+
     private JTextField screen;
     private JPanel mainPanel;
     private JButton btnZero;
@@ -32,6 +37,12 @@ public class Calculator {
     private JButton btnNegative;
     private JButton btnPlus;
     private JButton btnEquals;
+
+    private void getOperator(String btnText) {
+        math_operator = btnText.charAt(0);
+        total1 = total1 + Double.parseDouble(screen.getText());
+        screen.setText("");
+    }
 
     public Calculator() {
         btnOne.addActionListener(new ActionListener() {
@@ -107,43 +118,67 @@ public class Calculator {
         btnDecimal.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String btnDecimalText = screen.getText() + btnDecimal.getText();
-                screen.setText(btnDecimalText);
+                if (screen.getText().equals("")) {
+                    screen.setText("0.");
+                }
+
+                else if (screen.getText().contains(".")) {
+                    btnDecimal.setEnabled(false);
+                }
+                else {
+                    String btnDecimalText = screen.getText() + btnDecimal.getText();
+                    screen.setText(btnDecimalText);
+                }
+                btnDecimal.setEnabled(true);
             }
         });
         btnEquals.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String btnEqualsText = screen.getText() + btnEquals.getText();
-                screen.setText(btnEqualsText);
+                switch (math_operator) {
+                    case '+':
+                        total2 = total1 + Double.parseDouble(screen.getText());
+                        break;
+                    case '-':
+                        total2 = total1 - Double.parseDouble(screen.getText());
+                        break;
+                    case '*':
+                        total2 = total1 * Double.parseDouble(screen.getText());
+                        break;
+                    case '/':
+                        total2 = total1 / Double.parseDouble(screen.getText());
+                        break;
+                }
+                screen.setText(Double.toString(total2));
+                total1 = 0;
             }
         });
         btnPlus.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String btnPlusText = screen.getText() + btnPlus.getText();
-                screen.setText(btnPlusText);
+                String button_text = btnPlus.getText();
+                getOperator(button_text);
             }
         });
         btnMinus.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String btnMinusText = screen.getText() + btnMinus.getText();
-                screen.setText(btnMinusText);
+                String button_text = btnMinus.getText();
+                getOperator(button_text);
             }
         });
         btnMultiply.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String btnMultiplyText = screen.getText() + btnMultiply.getText();
-                screen.setText(btnMultiplyText);
+                String button_text = btnMultiply.getText();
+                getOperator(button_text);
             }
         });
         btnDivide.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String btnDivideText = screen.getText() + btnDivide.getText();
-                screen.setText(btnDivideText);
+                String button_text = btnDivide.getText();
+                getOperator(button_text);
             }
         });
         btnSin.addActionListener(new ActionListener() {
@@ -200,6 +235,13 @@ public class Calculator {
             public void actionPerformed(ActionEvent e) {
                 String btnNegativeText = screen.getText() + btnNegative.getText();
                 screen.setText(btnNegativeText);
+            }
+        });
+        btnClear.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                total2 = 0;
+                screen.setText("");
             }
         });
     }
