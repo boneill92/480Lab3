@@ -1,5 +1,6 @@
 package com.lab3;
 
+import java.util.*;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -34,7 +35,7 @@ public class Calculator {
     private JButton btnMinus;
     private JButton btnLn;
     private JButton btnDecimal;
-    private JButton btnNegative;
+    private JButton btnSquare;
     private JButton btnPlus;
     private JButton btnEquals;
 
@@ -42,6 +43,13 @@ public class Calculator {
         math_operator = btnText.charAt(0);
         total1 = total1 + Double.parseDouble(screen.getText());
         screen.setText("");
+    }
+
+    private void expressionEvaluate(String str) {
+        System.out.println(str.substring(str.length() - 1));
+        if (str.substring(str.length() - 1).equals('(')) {
+            screen.setText("");
+        }
     }
 
     public Calculator() {
@@ -118,67 +126,37 @@ public class Calculator {
         btnDecimal.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (screen.getText().equals("")) {
-                    screen.setText("0.");
-                }
+                String btnDecimalText = screen.getText() + btnDecimal.getText();
+                screen.setText(btnDecimalText);
+            }
+        });
 
-                else if (screen.getText().contains(".")) {
-                    btnDecimal.setEnabled(false);
-                }
-                else {
-                    String btnDecimalText = screen.getText() + btnDecimal.getText();
-                    screen.setText(btnDecimalText);
-                }
-                btnDecimal.setEnabled(true);
-            }
-        });
-        btnEquals.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                switch (math_operator) {
-                    case '+':
-                        total2 = total1 + Double.parseDouble(screen.getText());
-                        break;
-                    case '-':
-                        total2 = total1 - Double.parseDouble(screen.getText());
-                        break;
-                    case '*':
-                        total2 = total1 * Double.parseDouble(screen.getText());
-                        break;
-                    case '/':
-                        total2 = total1 / Double.parseDouble(screen.getText());
-                        break;
-                }
-                screen.setText(Double.toString(total2));
-                total1 = 0;
-            }
-        });
         btnPlus.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String button_text = btnPlus.getText();
-                getOperator(button_text);
+                String btnPlusText = screen.getText() + btnPlus.getText();
+                screen.setText(btnPlusText);
             }
         });
         btnMinus.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String button_text = btnMinus.getText();
-                getOperator(button_text);
+                String btnMinusText = screen.getText() + btnMinus.getText();
+                screen.setText(btnMinusText);;
             }
         });
         btnMultiply.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String button_text = btnMultiply.getText();
-                getOperator(button_text);
+                String btnMultiplyText = screen.getText() + btnMultiply.getText();
+                screen.setText(btnMultiplyText);
             }
         });
         btnDivide.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String button_text = btnDivide.getText();
-                getOperator(button_text);
+                String btnDivideText = screen.getText() + btnDivide.getText();
+                screen.setText(btnDivideText);
             }
         });
         btnSin.addActionListener(new ActionListener() {
@@ -230,11 +208,11 @@ public class Calculator {
                 screen.setText(btnLnText);
             }
         });
-        btnNegative.addActionListener(new ActionListener() {
+        btnSquare.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String btnNegativeText = screen.getText() + btnNegative.getText();
-                screen.setText(btnNegativeText);
+                String btnSquareText = screen.getText() + btnSquare.getText();
+                screen.setText(btnSquareText);
             }
         });
         btnClear.addActionListener(new ActionListener() {
@@ -244,6 +222,109 @@ public class Calculator {
                 screen.setText("");
             }
         });
+        btnEquals.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //expressionEvaluate(screen.getText());
+                String str = screen.getText();
+                int n = str.length();
+                char last = str.charAt(n-1);
+                if(!Character.isDigit(last)) {
+                    screen.setText("Error please clear");
+                }
+
+                HashMap<Character, Integer> map = new HashMap<>();
+                map.put('+', 1);
+                map.put('-', 1);
+                map.put('*', 2);
+                map.put('/', 2);
+                map.put('^', 3);
+                map.put('(', Integer.MIN_VALUE);
+
+                Stack<Character> operator = new Stack<>();
+                Stack<Integer> operand = new Stack<>();
+                str = '(' + str + ')';
+
+                for(int i=0;i<str.length();i++){
+                    char ch = str.charAt(i);
+
+                    if(ch=='+' || ch == '-' || ch=='*' || ch=='/' || ch == '^'){
+                        while(!operator.isEmpty() && map.get(ch)<=map.get(operator.peek())){
+                            char op = operator.pop();
+                            int pop1 = operand.pop();
+                            int pop2 = operand.pop();
+                            switch(op){
+                                case '+':{
+                                    operand.push(pop2+pop1);
+                                    break;
+                                }
+                                case '-':{
+                                    operand.push(pop2-pop1);
+                                    break;
+                                }
+                                case '*':{
+                                    operand.push(pop2*pop1);
+                                    break;
+                                }
+                                case '/':{
+                                    operand.push(pop2/pop1);
+                                    break;
+                                }
+                                case '^':{
+                                    operand.push(pop2^pop1);
+                                    break;
+                                }
+                            }
+                        }
+                        operator.push(ch);
+                    }else if(ch=='('){
+                        operator.push(ch);
+                    }else if(ch==')'){
+                        while(!operator.isEmpty() && operator.peek()!='('){
+                            char op = operator.pop();
+                            int pop1 = operand.pop();
+                            int pop2 = operand.pop();
+                            switch(op){
+                                case '+':{
+                                    operand.push(pop2+pop1);
+                                    break;
+                                }
+                                case '-':{
+                                    operand.push(pop2-pop1);
+                                    break;
+                                }
+                                case '*':{
+                                    operand.push(pop2*pop1);
+                                    break;
+                                }
+                                case '/':{
+                                    operand.push(pop2/pop1);
+                                    break;
+                                }
+                                case '^':{
+                                    operand.push(pop2^pop1);
+                                    break;
+                                }
+                            }
+                        }
+                        operator.pop();
+                    }else if(ch!=' '){
+                        int x = 0;
+                        while(Character.isDigit(str.charAt(i))){
+                            x = x*10 + Integer.valueOf(str.charAt(i)+"");
+                            i++;
+                        }
+                        i--;
+                        operand.push(x);
+
+                    }
+                }
+
+                int k = operand.pop();
+                screen.setText(String.valueOf(k));
+            }
+        });
+
     }
 
     public static void main(String[] args) {
@@ -253,5 +334,11 @@ public class Calculator {
         frame.pack();
         frame.setVisible(true);
     }
+
+//    public static void expressionEvaluate(String str) {
+//        if (str.substring(str.length() - 1).equals('(')) {
+//            screen.setText("");
+//        }
+//    }
 }
 
